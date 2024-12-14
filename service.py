@@ -1,14 +1,39 @@
-import bentoml
-from bentoml.io import JSON
 import numpy as np
+import bentoml
+from pydantic import Field
+from typing_extensions import Annotated
+from bentoml.validators import Shape
 
-iris_model = bentoml.sklearn.get('iris_rf_model:latest')
+@bentoml.service(
+    resources={
+        "cpu": "1",
+        "memory": "2Gi",
+    },
+)
+class IrisClassifier:
+    """
+    A simple Iris classification service using a sklearn model
+    """
+    
+    # Load in the class scope to declare the model as a dependency of the service
+    iris_model = bentoml.models.get("iris_sklearn:latest")
 
-svc = bentoml.Service('iris_classifier', runners=[iris_model.to_runner()])
+    def __init__(self):
+        """
+        Initialize the service by loading the model from the model store
+        """
+        import joblib
 
+        self.model = joblib.load(self.iris_model.path_of("model.pkl"))
 
-@svc.api(input=JSON(), output=JSON())
-async def classify(data):
-    input_array = np.array(data['data'])
-    prediction = await svc.runners[0].predict.async_run(input_array)
-    return {'prediction': prediction.tolist()}
+    @bentoml.api
+    def classify(
+        self,
+        input_series: Annotated[np.ndarray, Shape((-1, 4))] = Field(
+            default=[[5.2, 2.3, 5.0, 0.7]]
+        ),
+    ) -> np.ndarray:
+        """
+        Define API with preprocessing and model inference logic
+        """
+        return self.model.predict(input_series)

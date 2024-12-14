@@ -1,54 +1,108 @@
-# Iris Classification with Random Forest and BentoML
+# Iris Classifier with BentoML
 
-This repository contains two Python scripts to train a Random Forest classifier on the Iris dataset and serve the trained model using BentoML.
+This repository contains a simple iris classification service using an SVM model trained with the Iris dataset. The service is packaged and served using BentoML, making it easy to implement and deploy machine learning models.
 
-## Repository Contents
+## Project Files
 
-- `model.py`: Script to train the Random Forest classifier and save the model using BentoML.
-- `service.py`: Script to create a BentoML service that serves the trained model for making predictions.
+- **model.py**: Trains and saves the SVM model using the Iris dataset.
+- **service.py**: Defines the BentoML service that loads the trained model and provides an API for making predictions.
+- **dockerfile**: Contains instructions for building the Docker image for the service.
+- **bentofile.yaml**: BentoML-specific settings, including service and dependencies.
+- **requirements.txt**: Lists the dependencies required for the project.
 
-## Requirements
+## How to Run the Service
 
-Make sure you have the following libraries installed:
+### 1. Prepare the Environment
 
-- `scikit-learn`
-- `bentoml`
-- `numpy`
+Make sure you have [Docker](https://www.docker.com/get-started) and [BentoML](https://bentoml.ai/docs/installation) installed in your environment.
 
-You can install the required libraries using the following command:
+### 2. Install Dependencies
 
-```cmd
-pip install scikit-learn bentoml numpy
+Create a virtual environment and install the dependencies:
+
+```bash
+# Create a virtual environment (optional)
+python3 -m venv venv
+source venv/bin/activate # For Linux/macOS
+venv\Scripts\activate # For Windows
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-## Training the Model
+### 3. Train the Model
 
-Run the model.py script to train the Random Forest classifier on the Iris dataset and save the model using BentoML.
+The SVM model is automatically trained when running the `model.py` script. Just run the following command:
 
-```cmd
+```bash
 python model.py
 ```
 
-This will output the accuracy of the model on the test dataset and save the trained model with BentoML.
+This will create an SVM model using the Iris dataset and save it to BentoML.
 
-## Serving the Model
+### 4. Serving the Model
 
-Run the service.py script to create a BentoML service that serves the trained model for making predictions.
+To run the service and explore port 3000, you can use the BentoML command:
 
-```cmd
-python service.py
+```bash
+bentoml serves service.py
 ```
 
-This will start a BentoML service that can be used to classify Iris flower data.
+### 5. Build and Run with Docker
 
-## Example Request
+If you prefer to use Docker, follow these steps:
 
-To make a prediction, send a POST request to the BentoML service with the Iris flower data in JSON format. Here is an example of how to make a request using curl:
+1. Build a Docker image:
 
-```cmd
-curl -X POST -H "Content-Type: application/json" \
-    -d '{"data": [[5.1, 3.5, 1.4, 0.2]]}' \
-    http://127.0.0.1:5000/classify
+```bash
+docker build -t iris classifier.
 ```
 
-You should receive a response with the predicted class for the given data.
+2. Run the Docker container:
+
+```bash
+docker run -p 3000:3000 iris classifier
+```
+
+The service will be available at `http://localhost:3000`.
+
+##API
+
+### End point: `/sort`
+
+This endpoint receives an array of characteristics from an Iris flower and returns the predicted class.
+
+**Method:** `POST`  
+**Request Body (JSON):**
+```json
+{
+  "input_series": [[5.2, 2.3, 5.0, 0.7]]
+}
+```
+
+**Response (JSON):**
+```json
+[2]
+```
+
+The answer will be the predicted class (0, 1 or 2), which represents the three species in the Iris dataset (Setosa, Versicolor and Virginica).
+
+##Repository Structure
+
+```plain text
+/
+├── bentofile.yaml # BentoML configuration file
+├── dockerfile # Dockerfile to package and run the service
+├── model.py # Script to train and save the model
+├── requirements.txt # Python Dependencies
+├── readme.md # This file
+└── service.py #BentoML service definition
+```
+
+
+## Dependencies
+
+- `bentoml`: Framework for packaging and serving machine learning models.
+- `scikit-learn`: Library for machine learning.
+- `joblib`: Library for model serialization.
+- `pydantic`: Library for data validation and schema definition.

@@ -1,15 +1,16 @@
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+import joblib
+from sklearn import datasets
+from sklearn import svm
+
 import bentoml
 
-iris = load_iris()
-X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)
+if __name__ == "__main__":
+    iris = datasets.load_iris()
+    X, y = iris.data, iris.target
 
-model = RandomForestClassifier(n_estimators=100)
-model.fit(X_train, y_train)
+    clf = svm.SVC()
+    clf.fit(X, y)
 
-accuracy = model.score(X_test, y_test)
-print(f'Model accuracy: {accuracy}')
-
-bentoml.sklearn.save_model('iris_rf_model', model)
+    with bentoml.models.create("iris_sklearn") as bento_model:
+        joblib.dump(clf, bento_model.path_of("model.pkl"))
+    print(f"Model saved: {bento_model}")

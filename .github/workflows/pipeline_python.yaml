@@ -27,5 +27,5 @@ jobs:
       - name: Check Code
         run: black --check .
 
-      # - name: Run Black
-      #   run: black .
+       - name: Run Black
+         run: black .

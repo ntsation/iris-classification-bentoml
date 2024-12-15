@@ -24,8 +24,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install black
 
-      - name: Check Code
-        run: black --check .
-
-       - name: Run Black
-         run: black .
+      - name: Run Check
+        run: black .

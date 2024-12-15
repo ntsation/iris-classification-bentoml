@@ -3,10 +3,10 @@ name: Docker CI/CD
 on:
   push:
     branches:
-      - main
+      - pipelines
   pull_request:
     branches:
-      - main
+      - pipelines
 
 jobs:
   build-and-test:

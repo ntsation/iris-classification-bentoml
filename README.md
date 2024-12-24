@@ -1,108 +1,143 @@
-# Iris Classifier with BentoML
+# Iris Classifier Service
 
-This repository contains a simple iris classification service using an SVM model trained with the Iris dataset. The service is packaged and served using BentoML, making it easy to implement and deploy machine learning models.
+This project implements an iris classification service using BentoML and scikit-learn, following SOLID principles.
 
-## Project Files
+## Project Structure
 
-- **model.py**: Trains and saves the SVM model using the Iris dataset.
-- **service.py**: Defines the BentoML service that loads the trained model and provides an API for making predictions.
-- **dockerfile**: Contains instructions for building the Docker image for the service.
-- **bentofile.yaml**: BentoML-specific settings, including service and dependencies.
-- **requirements.txt**: Lists the dependencies required for the project.
+```
+src/
+├── models/               # Model layer
+│   ├── __init__.py
+│   ├── interfaces.py     # Abstract interfaces for models
+│   ├── iris_model.py     # Iris model implementation
+│   └── model_factory.py  # Factory for model creation
+├── services/             # Service layer
+│   ├── __init__.py
+│   ├── interfaces.py     # Service interfaces
+│   └── iris_service.py   # Iris service implementation
+├── data/                 # Data layer
+│   ├── __init__.py
+│   ├── data_loader.py    # Data loading
+│   └── data_preprocessor.py  # Data preprocessing
+├── config/               # Configurations
+│   └── config.py
+└── main.py               # Entry point
+```
 
-## How to Run the Service
+## Applied SOLID Principles
 
-### 1. Prepare the Environment
+1. **Single Responsibility Principle (SRP)**
+   - Each class has a single responsibility
+   - Clear separation between data, model, and service
 
-Make sure you have [Docker](https://www.docker.com/get-started) and [BentoML](https://bentoml.ai/docs/installation) installed in your environment.
+2. **Open/Closed Principle (OCP)**
+   - Extendable to new models via ModelFactory
+   - Interfaces allow new implementations
 
-### 2. Install Dependencies
+3. **Liskov Substitution Principle (LSP)**
+   - Well-defined interfaces for models and services
+   - Implementations are interchangeable
 
-Create a virtual environment and install the dependencies:
+4. **Interface Segregation Principle (ISP)**
+   - Small and specific interfaces
+   - Clear separation of responsibilities
 
+5. **Dependency Inversion Principle (DIP)**
+   - Dependencies injected via interfaces
+   - High testability and low coupling
+
+## Install dependencies:
 ```bash
-# Create a virtual environment (optional)
-python3 -m venv venv
-source venv/bin/activate # For Linux/macOS
-venv\Scripts\activate # For Windows
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Train the Model
+## How to Use
 
-The SVM model is automatically trained when running the `model.py` script. Just run the following command:
-
+1. **Train the Model**:
 ```bash
-python model.py
+python src/main.py
 ```
 
-This will create an SVM model using the Iris dataset and save it to BentoML.
-
-### 4. Serving the Model
-
-To run the service and explore port 3000, you can use the BentoML command:
-
+2. **Start the Server**:
 ```bash
-bentoml serves service.py
+bentoml serve src.services.iris_service:IrisClassifierService --reload
 ```
 
-### 5. Build and Run with Docker
+3. **Make Predictions**:
 
-If you prefer to use Docker, follow these steps:
+## API Endpoints
 
-1. Build a Docker image:
+- **Swagger UI**: http://localhost:3000/docs
+- **API Endpoint**: http://localhost:3000/classify
+- **Metrics**: http://localhost:3000/metrics# Iris Classifier Service
 
+This project implements an iris classification service using BentoML and scikit-learn, following SOLID principles.
+
+## Project Structure
+
+```
+src/
+├── models/               # Model layer
+│   ├── __init__.py
+│   ├── interfaces.py     # Abstract interfaces for models
+│   ├── iris_model.py     # Iris model implementation
+│   └── model_factory.py  # Factory for model creation
+├── services/             # Service layer
+│   ├── __init__.py
+│   ├── interfaces.py     # Service interfaces
+│   └── iris_service.py   # Iris service implementation
+├── data/                 # Data layer
+│   ├── __init__.py
+│   ├── data_loader.py    # Data loading
+│   └── data_preprocessor.py  # Data preprocessing
+├── config/               # Configurations
+│   └── config.py
+└── main.py               # Entry point
+```
+
+## Applied SOLID Principles
+
+1. **Single Responsibility Principle (SRP)**
+   - Each class has a single responsibility
+   - Clear separation between data, model, and service
+
+2. **Open/Closed Principle (OCP)**
+   - Extendable to new models via ModelFactory
+   - Interfaces allow new implementations
+
+3. **Liskov Substitution Principle (LSP)**
+   - Well-defined interfaces for models and services
+   - Implementations are interchangeable
+
+4. **Interface Segregation Principle (ISP)**
+   - Small and specific interfaces
+   - Clear separation of responsibilities
+
+5. **Dependency Inversion Principle (DIP)**
+   - Dependencies injected via interfaces
+   - High testability and low coupling
+
+## Install dependencies:
 ```bash
-docker build -t iris classifier.
+pip install -r requirements.txt
 ```
 
-2. Run the Docker container:
+## How to Use
 
+1. **Train the Model**:
 ```bash
-docker run -p 3000:3000 iris classifier
+python src/main.py
 ```
 
-The service will be available at `http://localhost:3000`.
-
-##API
-
-### End point: `/sort`
-
-This endpoint receives an array of characteristics from an Iris flower and returns the predicted class.
-
-**Method:** `POST`  
-**Request Body (JSON):**
-```json
-{
-  "input_series": [[5.2, 2.3, 5.0, 0.7]]
-}
+2. **Start the Server**:
+```bash
+bentoml serve src.services.iris_service:IrisClassifierService --reload
 ```
 
-**Response (JSON):**
-```json
-[2]
-```
+3. **Make Predictions**:
 
-The answer will be the predicted class (0, 1 or 2), which represents the three species in the Iris dataset (Setosa, Versicolor and Virginica).
+## API Endpoints
 
-##Repository Structure
-
-```plain text
-/
-├── bentofile.yaml # BentoML configuration file
-├── dockerfile # Dockerfile to package and run the service
-├── model.py # Script to train and save the model
-├── requirements.txt # Python Dependencies
-├── readme.md # This file
-└── service.py #BentoML service definition
-```
-
-
-## Dependencies
-
-- `bentoml`: Framework for packaging and serving machine learning models.
-- `scikit-learn`: Library for machine learning.
-- `joblib`: Library for model serialization.
-- `pydantic`: Library for data validation and schema definition.
+- **Swagger UI**: http://localhost:3000/docs
+- **API Endpoint**: http://localhost:3000/classify
+- **Metrics**: http://localhost:3000/metrics
